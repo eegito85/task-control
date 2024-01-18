@@ -2,6 +2,8 @@ import '../../styles/globals.css';
 import Swal from 'sweetalert2';
 import Layout from "@/components/Layout";
 import TaskItem from '@/core/TaskItem';
+import React from 'react';
+import axios from 'axios';
 import { BackIcon, SaveIcon} from "../../components/Icons";
 import { useRouter } from "next/router";
 import { useState } from 'react';
@@ -18,8 +20,8 @@ export default function CreateTask() {
         id: 0,
         name: '',
         description: '',
-        created: new Date('2022-01-01'),
-        updated: new Date('2022-01-01'),
+        created: '',
+        updated: '',
         priority: 0
     }
     );
@@ -44,10 +46,27 @@ export default function CreateTask() {
     const handleSelectChange = (event: any) => {
         const { value } = event.target;
         setSelectedValue(value);
+        //console.log('var: ', dadosFormulario.priority);
+        setDadosFormulario({ ...dadosFormulario, priority: value });
     };
 
+    const baseURL = 'http://localhost:5146/api/Task/CreateTask';
+
     function saveTask() {
-        Swal.fire('Tarefa adicionada com sucesso!');
+
+        axios.post(baseURL , dadosFormulario)
+        .then((response) => {
+            Swal.fire({
+                html: `Tarefa adicionada com sucesso!`,
+                width: '800',
+                didClose: () => {
+                    router.push('/');
+                },
+              });
+        })
+        .catch(() => {
+            Swal.fire('Erro ao adicionar tarefa!');
+        });
     }
 
     return (
@@ -87,9 +106,9 @@ export default function CreateTask() {
                             value={selectedValue} 
                             onChange={handleSelectChange}>
                                 <option value="">Selecione...</option>
-                                <option value="1">Baixa</option>
-                                <option value="2">Média</option>
-                                <option value="3">Alta</option>
+                                <option value="0">Baixa</option>
+                                <option value="1">Média</option>
+                                <option value="2">Alta</option>
                         </select>
                     </div>
                     <div className='flex flex-row p-4'>

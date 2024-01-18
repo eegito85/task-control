@@ -53,13 +53,14 @@ namespace TaskControlApp.API.Controllers
         /// </summary>
         /// <param name="taskItemDto"></param>
         /// <returns></returns>
-        [HttpPost("CreateCustomer")]
+        [HttpPost("CreateTask")]
         public async Task<ActionResult> Post([FromBody] TaskItemDto taskItemDto)
         {
             if (taskItemDto == null)
                 return BadRequest("Data Invalid");
 
-            taskItemDto.Created = DateTime.Now;
+            taskItemDto.Created = DateTime.Now.Day.ToString() + "/" + DateTime.Now.Month.ToString() + "/" + DateTime.Now.Year.ToString();
+            taskItemDto.Updated = DateTime.Now.Day.ToString() + "/" + DateTime.Now.Month.ToString() + "/" + DateTime.Now.Year.ToString();
 
             await _taskService.CreateTask(taskItemDto);
 
@@ -83,7 +84,7 @@ namespace TaskControlApp.API.Controllers
             if (taskItemDto == null)
                 return BadRequest("Dado invalido");
 
-            taskItemDto.Updated = DateTime.Now;
+            taskItemDto.Updated = DateTime.Now.Day.ToString() + "/" + DateTime.Now.Month.ToString() + "/" + DateTime.Now.Year.ToString();
             await _taskService.UpdateTask(taskItemDto);
             
             return Ok(taskItemDto);
@@ -94,7 +95,7 @@ namespace TaskControlApp.API.Controllers
         /// </summary>
         /// <param name="id"></param>
         /// <returns></returns>
-        [HttpDelete("DeleteCustomer/{id}")]
+        [HttpDelete("DeleteTask/{id}")]
         public async Task<ActionResult<TaskItemDto>> Delete(int id)
         {
             var taskItemDto = await _taskService.GetTaskById(id);

@@ -1,28 +1,50 @@
 import '../../styles/globals.css';
+import axios from 'axios';
 import Swal from 'sweetalert2';
 import Layout from "@/components/Layout";
 import TaskItem from '@/core/TaskItem';
 import { BackIcon, SaveIcon} from "../../components/Icons";
 import { useRouter } from "next/router";
-import { useState } from 'react';
+import { useState, useEffect } from 'react';
 
 export default function UpdateTask() {
    
     const router = useRouter();
-    const id_task = router.query.id;
-
-    //console.log('Id: ', id_task);
+    const id_query = router.query.id;
+    const id_task = id_query !== undefined ? parseInt(id_query) : 0;
+    
+    const [selectedValue, setSelectedValue] = useState('');
 
     // Estado local para armazenar os dados do formulário
     const [dadosFormulario, setDadosFormulario] = useState<TaskItem>({
         id: 0,
         name: '',
         description: '',
-        created: new Date('2022-01-01'),
-        updated: new Date('2022-01-01'),
+        created: '',
+        updated: '',
         priority: 0
     }
     );
+    const baseURL = 'http://localhost:5146/api/Task';
+    
+    useEffect(() => {
+        if(id_task > 0) {
+            const fetchData = async () => {
+                try {
+                    const response = await fetch(`${baseURL}/GetTask/${id_task}`);
+                    if (!response.ok) {
+                        throw new Error(`Erro na solicitação: ${response.status}`);
+                    }
+                    const data = await response.json();
+                    //console.log(data);
+                    setDadosFormulario(data);
+                    setSelectedValue(data.priority);
+                }
+                catch {}
+            }
+            fetchData();
+        }      
+    }, [id_task]);
 
     // Manipulador de alterações nos campos do formulário
     const handleInputChange = (event: any) => {
@@ -37,17 +59,29 @@ export default function UpdateTask() {
         console.log('Dados do formulário enviados:', dadosFormulario);
     };
 
-    // Estado local para armazenar o valor selecionado na lista suspensa
-    const [selectedValue, setSelectedValue] = useState('');
-
     // Manipulador de alterações na lista suspensa
     const handleSelectChange = (event: any) => {
         const { value } = event.target;
         setSelectedValue(value);
+        setDadosFormulario({ ...dadosFormulario, priority: value });
     };
 
     function updateTask() {
-        Swal.fire('Tarefa atualizada com sucesso!');
+        
+        axios.put(`${baseURL}/UpdateTask/${id_task}`, dadosFormulario, {
+            headers: {
+              'Access-Control-Allow-Origin': '*', 
+            },
+        }).then((response) => {
+            setDadosFormulario(response.data);
+            Swal.fire({
+                html: `Tarefa atualizada com sucesso!`,
+                width: '800',
+                didClose: () => {
+                    router.push('/');
+                },
+              });
+      });
     }
 
     return (
@@ -87,9 +121,9 @@ export default function UpdateTask() {
                             value={selectedValue} 
                             onChange={handleSelectChange}>
                                 <option value="">Selecione...</option>
-                                <option value="1">Baixa</option>
-                                <option value="2">Média</option>
-                                <option value="3">Alta</option>
+                                <option value="0">Baixa</option>
+                                <option value="1">Média</option>
+                                <option value="2">Alta</option>
                         </select>
                     </div>
                     <div className='flex flex-row p-4'>

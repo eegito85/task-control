@@ -1,5 +1,8 @@
 "use client"
 
+import React, { useState, useEffect } from 'react';
+import axios from 'axios';
+import Swal from 'sweetalert2';
 import { useRouter } from 'next/navigation';
 import Layout from '@/components/Layout'
 import TaskItem from '@/core/TaskItem'
@@ -7,16 +10,51 @@ import { EditIcon, TrashIcon, PlusIcon} from "../components/Icons"
 
 export default function Home() {
 
+  const [tasks, setTasks] = useState([{
+    id: 0,
+    name: '',
+    description: '',
+    created: '',
+    updated: '',
+    priority: 0
+  }]);
+  const baseURL = 'http://localhost:5146/api/Task/GetTasks';
+
+  useEffect(() => {
+    axios.get(baseURL, {
+      headers: {
+        'Access-Control-Allow-Origin': '*', 
+      },
+    }).then((response) => {
+      setTasks(response.data);
+    });
+  }, []);
+
+  /*
   const tasks = [
     new TaskItem(1,'Limpar a casa na sexta feira', 'Comprar pano de chão antes da limpeza', new Date("2022-01-01T12:00:00Z"), new Date("2022-01-01T12:00:00Z"),  1),
     new TaskItem(2,'Trocar água do cachorro', 'Limpar pote de água', new Date("2022-01-01T12:00:00Z"), new Date("2022-01-01T12:00:00Z"),  2),
     new TaskItem(3,'Devolver notebook na próxima semana', 'Endereço: Rua Exemplo, sem número, casa 45', new Date("2022-01-01T12:00:00Z"), new Date("2022-01-01T12:00:00Z"),  0)
   ]
+  */
 
   const router = useRouter();
 
   function deleteTask(task: TaskItem) {
-    console.log(task.id);
+    const deleteBaseURL = 'http://localhost:5146/api/Task/DeleteTask';
+    axios
+      .delete(`${deleteBaseURL}/${task.id}`)
+      .then(() => {
+        Swal.fire({
+          html: `Tarefa excluída com sucesso!`,
+          width: '800',
+          didClose: () => {
+            window.location.reload();
+          },
+        });
+      }).catch(() => {
+        Swal.fire('Erro ao excluir tarefa!');
+      });
   }
 
   function renderHeaderTable() {
@@ -78,8 +116,8 @@ function renderDataTable() {
                 <td className="text-sm text-left p-2" >{task.name}</td>
                 <td className="text-sm text-left p-2" >{task.description}</td>
                 <td className="text-sm text-center p-2" >{getPriorityType(task.priority)}</td>
-                <td className="text-sm text-center p-2" >{task.created.toISOString()}</td>
-                <td className="text-sm text-center p-2" >{task.updated.toISOString()}</td>
+                <td className="text-sm text-center p-2" >{task.created}</td>
+                <td className="text-sm text-center p-2" >{task.updated}</td>
                 {renderActions(task)}
             </tr>
         )

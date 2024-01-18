@@ -11,6 +11,14 @@ builder.Services.AddEndpointsApiExplorer();
 
 builder.Services.AddInfrastructureApi(builder.Configuration);
 
+builder.Services.AddCors(options =>
+{
+    options.AddPolicy("AllowAnyOrigin",
+        builder => builder.AllowAnyOrigin()
+                          .AllowAnyMethod()
+                          .AllowAnyHeader());
+});
+
 builder.Services.AddSwaggerGen(
     c =>
     {
@@ -33,6 +41,8 @@ if (app.Environment.IsDevelopment())
     app.UseSwagger();
     app.UseSwaggerUI();
 }
+
+app.UseCors("AllowAnyOrigin");
 
 app.UseHttpsRedirection();
 
