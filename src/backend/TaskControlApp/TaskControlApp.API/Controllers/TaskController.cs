@@ -59,6 +59,8 @@ namespace TaskControlApp.API.Controllers
             if (taskItemDto == null)
                 return BadRequest("Data Invalid");
 
+            taskItemDto.Created = DateTime.Now;
+
             await _taskService.CreateTask(taskItemDto);
 
             return Ok(taskItemDto);
@@ -81,6 +83,7 @@ namespace TaskControlApp.API.Controllers
             if (taskItemDto == null)
                 return BadRequest("Dado invalido");
 
+            taskItemDto.Updated = DateTime.Now;
             await _taskService.UpdateTask(taskItemDto);
             
             return Ok(taskItemDto);

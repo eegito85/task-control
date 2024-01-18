@@ -8,5 +8,6 @@
         public DateTime Created { get; set; }
         public DateTime Updated { get; set; }
         public int Priority { get; set; }
+        //public int Status { get; set; }
     }
 }
